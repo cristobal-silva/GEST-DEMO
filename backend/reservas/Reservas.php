@@ -48,6 +48,15 @@ class Reservas {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Actualizar el estado de una reserva
+    public function actualizarEstadoReserva($reserva_id, $nuevo_estado) {
+        $query = "UPDATE reservas SET estado = :estado WHERE id = :reserva_id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':estado', $nuevo_estado);
+        $stmt->bindParam(':reserva_id', $reserva_id);
+        return $stmt->execute();
+    }
+
     // Cancelar (eliminar) una reserva
     public function cancelarReserva($reserva_id) {
         $query = "DELETE FROM reservas WHERE id = :reserva_id";

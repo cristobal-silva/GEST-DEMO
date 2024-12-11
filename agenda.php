@@ -7,28 +7,22 @@ if (!isset($_SESSION['usuario_id'])) {
 
 require 'backend/config.php';
 require 'backend/reservas/Reservas.php';
-require 'backend/usuarios/Usuario.php';
 
 $db = (new Database())->getConnection();
 $reservas = new Reservas($db);
-$usuario = new Usuario($db);
 
-$usuarioActual = $usuario->obtenerUsuarioPorId($_SESSION['usuario_id']);
-if ($usuarioActual['rol'] !== 'profesional') {
-    header("Location: acceso_denegado.php");
+// Obtener las reservas del profesional actual
+$profesional_id = $_SESSION['usuario_id'];
+$lista_reservas = $reservas->listarReservasPorProfesional($profesional_id);
+
+// Si se envió una solicitud POST para actualizar el estado
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $reserva_id = $_POST['reserva_id'];
+    $nuevo_estado = $_POST['estado'];
+    $reservas->actualizarEstadoReserva($reserva_id, $nuevo_estado);
+    header("Location: agenda.php");
     exit;
 }
-
-// Obtener reservas asignadas al profesional
-$query = $db->prepare("SELECT r.id, u.nombre AS paciente, s.nombre AS servicio, r.fecha, r.hora, r.estado
-                       FROM reservas r
-                       JOIN usuarios u ON r.usuario_id = u.id
-                       JOIN servicios s ON r.servicio_id = s.id
-                       WHERE r.profesional_id = :profesional_id
-                       ORDER BY r.fecha ASC, r.hora ASC");
-$query->bindParam(':profesional_id', $usuarioActual['id']);
-$query->execute();
-$lista_reservas = $query->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -43,33 +37,41 @@ $lista_reservas = $query->fetchAll(PDO::FETCH_ASSOC);
     <div class="container">
         <h1>Agenda</h1>
         <a href="dashboard.php" class="btn">Volver al Dashboard</a>
-
-        <?php if (count($lista_reservas) > 0): ?>
-            <table>
-                <thead>
+        <table>
+            <thead>
+                <tr>
+                    <th>Paciente</th>
+                    <th>Servicio</th>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($lista_reservas as $reserva): ?>
                     <tr>
-                        <th>Paciente</th>
-                        <th>Servicio</th>
-                        <th>Fecha</th>
-                        <th>Hora</th>
-                        <th>Estado</th>
+                        <td><?= htmlspecialchars($reserva['paciente']); ?></td>
+                        <td><?= htmlspecialchars($reserva['servicio']); ?></td>
+                        <td><?= htmlspecialchars($reserva['fecha']); ?></td>
+                        <td><?= htmlspecialchars($reserva['hora']); ?></td>
+                        <td><?= htmlspecialchars($reserva['estado']); ?></td>
+                        <td>
+                            <form method="POST" style="display: inline;">
+                                <input type="hidden" name="reserva_id" value="<?= $reserva['id']; ?>">
+                                <input type="hidden" name="estado" value="confirmada">
+                                <button type="submit" class="btn">Confirmar</button>
+                            </form>
+                            <form method="POST" style="display: inline;">
+                                <input type="hidden" name="reserva_id" value="<?= $reserva['id']; ?>">
+                                <input type="hidden" name="estado" value="completada">
+                                <button type="submit" class="btn-success">Completar</button>
+                            </form>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($lista_reservas as $reserva): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($reserva['paciente']); ?></td>
-                            <td><?= htmlspecialchars($reserva['servicio']); ?></td>
-                            <td><?= htmlspecialchars($reserva['fecha']); ?></td>
-                            <td><?= htmlspecialchars($reserva['hora']); ?></td>
-                            <td><?= htmlspecialchars($reserva['estado']); ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php else: ?>
-            <p>No tienes citas programadas.</p>
-        <?php endif; ?>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
     </div>
 </body>
 </html>

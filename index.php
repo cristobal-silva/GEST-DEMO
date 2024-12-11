@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="email" name="correo" id="correo" required>
             </div>
             <div class="form-group">
-                <label for="contrasena">contrasena</label>
+                <label for="contrasena">contraseña</label>
                 <input type="password" name="contrasena" id="contrasena" required>
             </div>
             <button type="submit" class="btn">Ingresar</button>
