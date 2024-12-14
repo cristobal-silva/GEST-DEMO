@@ -9,7 +9,7 @@ class Reservas {
     // Crear una nueva reserva
     public function crearReserva($usuario_id, $servicio_id, $fecha, $hora, $profesional_id = null) {
         $query = "INSERT INTO reservas (usuario_id, servicio_id, fecha, hora, estado, profesional_id) 
-                  VALUES (:usuario_id, :servicio_id, :fecha, :hora, 'confirmada', :profesional_id)";
+                  VALUES (:usuario_id, :servicio_id, :fecha, :hora, 'pendiente', :profesional_id)";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':usuario_id', $usuario_id);
         $stmt->bindParam(':servicio_id', $servicio_id);
@@ -53,6 +53,15 @@ class Reservas {
         $query = "UPDATE reservas SET estado = :estado WHERE id = :reserva_id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':estado', $nuevo_estado);
+        $stmt->bindParam(':reserva_id', $reserva_id);
+        return $stmt->execute();
+    }
+
+    // Anular una reserva
+    public function anularReserva($reserva_id) {
+        // Cambiar el estado a 'anulada' si la reserva no está 'completada'
+        $query = "UPDATE reservas SET estado = 'anulada' WHERE id = :reserva_id AND estado != 'completada'";
+        $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':reserva_id', $reserva_id);
         return $stmt->execute();
     }

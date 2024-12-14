@@ -6,8 +6,10 @@ if (!isset($_SESSION['usuario_id'])) {
 }
 
 require 'backend/config.php';
+require 'backend/reservas/reservas.php';
 
 $db = (new Database())->getConnection();
+$reservas = new Reservas($db);
 
 // Obtener los datos del usuario
 $usuario_id = $_SESSION['usuario_id'];
@@ -16,8 +18,21 @@ $query->bindParam(':usuario_id', $usuario_id);
 $query->execute();
 $usuario = $query->fetch(PDO::FETCH_ASSOC);
 
-// Si se envía un formulario para actualizar el perfil
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// Mensaje de confirmación o error
+$mensaje = null;
+
+// Si el paciente anula una reserva
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['anular_reserva_id'])) {
+    $reserva_id = $_POST['anular_reserva_id'];
+    if ($reservas->anularReserva($reserva_id)) {
+        $mensaje = "La reserva ha sido anulada correctamente.";
+    } else {
+        $mensaje = "Error al anular la reserva. Verifica el estado.";
+    }
+}
+
+// Si el paciente actualiza su perfil
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nombre']) && isset($_POST['correo'])) {
     $nuevo_nombre = $_POST['nombre'];
     $nuevo_correo = $_POST['correo'];
 
@@ -37,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Obtener el historial de reservas del usuario
 $reservas_query = $db->prepare("
-    SELECT s.nombre AS servicio, r.fecha, r.hora, r.estado, 
+    SELECT r.id, s.nombre AS servicio, r.fecha, r.hora, r.estado, 
            COALESCE(u.nombre, 'No asignado') AS profesional 
     FROM reservas r
     JOIN servicios s ON r.servicio_id = s.id
@@ -61,9 +76,13 @@ $historial_reservas = $reservas_query->fetchAll(PDO::FETCH_ASSOC);
 <body>
     <div class="container">
         <h1>Mi Perfil</h1>
-        <?php if (isset($mensaje)): ?>
+
+        <!-- Mensaje de confirmación o error -->
+        <?php if ($mensaje): ?>
             <div class="alert"><?= htmlspecialchars($mensaje); ?></div>
         <?php endif; ?>
+
+        <!-- Formulario de actualización de perfil -->
         <form method="POST">
             <div class="form-group">
                 <label for="nombre">Nombre</label>
@@ -76,6 +95,7 @@ $historial_reservas = $reservas_query->fetchAll(PDO::FETCH_ASSOC);
             <button type="submit" class="btn">Actualizar Perfil</button>
         </form>
 
+        <!-- Historial de Actividades -->
         <h2>Historial de Actividades</h2>
         <?php if (count($historial_reservas) > 0): ?>
             <table>
@@ -86,6 +106,7 @@ $historial_reservas = $reservas_query->fetchAll(PDO::FETCH_ASSOC);
                         <th>Hora</th>
                         <th>Estado</th>
                         <th>Profesional</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -96,6 +117,17 @@ $historial_reservas = $reservas_query->fetchAll(PDO::FETCH_ASSOC);
                             <td><?= htmlspecialchars($reserva['hora']); ?></td>
                             <td><?= htmlspecialchars($reserva['estado']); ?></td>
                             <td><?= htmlspecialchars($reserva['profesional']); ?></td>
+                            <td>
+                                <!-- Botón para anular reserva -->
+                                <?php if ($reserva['estado'] !== 'completada' && $reserva['estado'] !== 'anulada'): ?>
+                                    <form method="POST" style="display: inline-block;">
+                                        <input type="hidden" name="anular_reserva_id" value="<?= $reserva['id']; ?>">
+                                        <button type="submit" class="btn-danger">Anular</button>
+                                    </form>
+                                <?php else: ?>
+                                    <span class="disabled">No disponible</span>
+                                <?php endif; ?>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>

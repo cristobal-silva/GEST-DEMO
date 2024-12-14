@@ -34,7 +34,7 @@ $metricas = [
     <title>Dashboard</title>
     <link rel="stylesheet" href="/dentista-pro/assets/css/styles.css">
 </head>
-<body>
+<body class="dashboard-page">
     <!-- Barra de Navegación -->
     <nav class="navbar">
         <div class="logo">Gestión Dental</div>
@@ -63,6 +63,8 @@ $metricas = [
         <p>Rol: <?= htmlspecialchars($usuario_actual['rol']); ?></p>
 
         <!-- Métricas -->
+		<?php if ($usuario_actual['rol'] === 'administrador'): ?>
+
         <section class="metrics-section">
             <div class="metric-card">
                 <h3><?= $metricas['total_reservas']; ?></h3>
@@ -77,6 +79,7 @@ $metricas = [
                 <p>Servicios Ofrecidos</p>
             </div>
         </section>
+		<?php endif; ?>
     </main>
 </body>
 </html>

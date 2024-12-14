@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <form method="POST" style="display: inline;">
                                 <input type="hidden" name="reserva_id" value="<?= $reserva['id']; ?>">
                                 <input type="hidden" name="estado" value="completada">
-                                <button type="submit" class="btn-success">Completar</button>
+<button class="btn-completar" onclick="completarCita(<?= $reserva['id']; ?>)">Completar</button>
                             </form>
                         </td>
                     </tr>

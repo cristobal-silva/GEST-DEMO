@@ -3,7 +3,7 @@
     --primary-color: #4caf50; /* Verde principal */
     --secondary-color: #ff9800; /* Naranja complementario */
     --danger-color: #f44336; /* Rojo */
-    --background-color: #f9f9fb; /* Fondo suave */
+    --background-color: #c4dac0; /* Fondo suave */
     --text-color: #333; /* Texto */
     --white-color: #ffffff; /* Blanco */
     --hover-bright: rgba(255, 255, 255, 0.3); /* Brillo para hover */
@@ -109,10 +109,27 @@ p {
 
 .btn-danger {
     background-color: var(--danger-color);
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .btn-danger:hover {
     background-color: #d32f2f;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-danger:active {
+    background-color: #c62828;
+    transform: scale(0.95);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* Métricas del Dashboard */
@@ -183,49 +200,6 @@ form {
     box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
 }
 
-/* Login */
-.login-container {
-    max-width: 400px;
-    margin: auto;
-    padding: 30px;
-    background-color: var(--white-color);
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    text-align: center;
-}
-
-.login-container h1 {
-    margin-bottom: 20px;
-    color: var(--primary-color);
-}
-
-.login-container input {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-.login-container .btn {
-    width: 100%;
-    padding: 12px;
-    font-size: 16px;
-}
-
-/* Enlaces */
-a {
-    color: var(--secondary-color);
-    font-weight: bold;
-    text-decoration: none;
-    transition: color 0.3s;
-}
-
-a:hover {
-    color: var(--primary-color);
-    text-decoration: underline;
-}
-
 /* Tablas */
 table {
     width: 100%;
@@ -254,7 +228,7 @@ table tr:hover {
     background-color: #f1f1f1;
 }
 /* Botón Completar */
-.btn-success {
+.btn-completar {
     background-color: #4caf50; /* Verde */
     color: #ffffff;
     padding: 10px 15px;
@@ -266,16 +240,30 @@ table tr:hover {
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: inline-block;
 }
 
-.btn-success:hover {
+.btn-completar:hover {
     background-color: #45a049; /* Verde más oscuro */
     transform: scale(1.05);
     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
 
-.btn-success:active {
+.btn-completar:active {
     background-color: #3c8f41; /* Verde aún más oscuro */
     transform: scale(0.95);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+body.dashboard-page {
+    position: relative;
+    background-image: url('/dentista-pro/assets/img/logo.png'); /* Ruta del logo */
+    background-repeat: no-repeat; /* Evita que el logo se repita */
+    background-position: center; /* Centra el logo */
+    background-size: 500px 500px; /* Ajusta el tamaño del logo */
+    background-color: #c4dac0; /* Blanco crema */
+    min-height: 100vh; /* Ocupa toda la pantalla */
+}
+
+.dashboard-container {
+    padding: 20px; /* Asegura que el contenido no se pegue al borde */
 }
